@@ -1,38 +1,65 @@
-<script>
-async function loginFromURL() {
-  // Read the query parameters from URL
-  const params = new URLSearchParams(window.location.search);
-  const username = params.get('miriNumber');
- 
-
-  if (!username) {
-    alert("Username or Password missing in URL!");
-    return;
-  }
-
-  try {
-    const response = await fetch('https://cors-anywhere.herokuapp.com/https://dev.mirisystemsapps.com/mirisystems/services/miservicedecoder/Verify/MiriID/${encodeURIComponent(username)}', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    
-    });
-
-    const data = await response.json();
-alert(data);
-    if (response.ok && data.success) {
-      window.location.href = "user_portal.html"; // Redirect to portal on success
-    } else {
-      alert("Login failed: " + (data.message || "Invalid credentials"));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Validation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
     }
+    .success {
+      color: green;
+      font-size: 20px;
+    }
+    .error {
+      color: red;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
 
-  } catch (error) {
-    console.error('Error:', error);
-    alert("Error connecting to server.");
+<h2>Validating Login...</h2>
+<div id="result"></div>
+
+<script>
+  // Step 1: Get miriNumber from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const miriNumber = urlParams.get('miriNumber');
+
+  if (!miriNumber) {
+    document.getElementById('result').innerHTML = '<div class="error">No Miri Number provided!</div>';
+  } else {
+    // Step 2: Prepare API URL
+    const apiUrl = `https://dev.mirisystemsapps.com/mirisystems/services/miservicedecoder/Verify/MiriID/${miriNumber}`;
+
+    // Step 3: Use CORS Anywhere proxy
+    const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+    const finalUrl = corsProxy + apiUrl;
+
+    // Step 4: Call API
+    fetch(finalUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json(); // assuming your API returns JSON
+      })
+      .then(data => {
+        console.log('API Response:', data);
+        document.getElementById('result').innerHTML = '<div class="success">Login Validated Successfully!</div>';
+        
+        // You can redirect to portal after success if needed
+        // window.location.href = "user_portal.html";
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result').innerHTML = '<div class="error">Login Failed: ' + error.message + '</div>';
+      });
   }
-}
-
-// Call the function automatically when page loads
-window.onload = loginFromURL;
 </script>
+
+</body>
+</html>
