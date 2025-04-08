@@ -11,7 +11,7 @@ async function loginFromURL() {
   }
 
   try {
-    const response = await fetch('https://dev.mirisystemsapps.com/mirisystems/services/miservicedecoder/Verify/MiriID/'+username, {
+    const response = await fetch('https://dev.mirisystemsapps.com/mirisystems/services/miservicedecoder/Verify/MiriID/${encodeURIComponent(username)}', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
